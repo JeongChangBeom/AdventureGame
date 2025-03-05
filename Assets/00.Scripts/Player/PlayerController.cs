@@ -8,8 +8,23 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed;
     public float jumpPower;
-    private Vector2 _moveDirection;
+    private Vector3 _moveDirection;
     public LayerMask groundLayerMask;
+
+    [Header("Look")]
+    public Transform cameraContainer;
+    public float minXLook;
+    public float maxXLook;
+    private float _camCurXRot;
+    private float _camCurYRot;
+    public float lookSensitivity;
+    private Vector2 _mouseDelta;
+    public bool canLook = true;
+    public float camDistance;
+    public float rotTime;
+    public float rotSpeed;
+    private Vector3 _targetRotaion;
+    private Vector3 _curVelocity;
 
     private Rigidbody _rigidbody;
     private Animator _anim;
@@ -38,9 +53,24 @@ public class PlayerController : MonoBehaviour
         Move();
     }
 
+    private void LateUpdate()
+    {
+        if (canLook)
+        {
+            CameraLook();
+        }
+    }
+
     private void Move()
     {
-        Vector3 dir = transform.forward * _moveDirection.y + transform.right * _moveDirection.x;
+        Vector3 lookForward = new Vector3(cameraContainer.forward.x, 0f, cameraContainer.forward.z).normalized;
+        Vector3 lookRight = new Vector3(cameraContainer.right.x, 0f, cameraContainer.right.z).normalized;
+
+        Vector3 dir = lookForward * _moveDirection.y + lookRight * _moveDirection.x;
+
+        Quaternion viewRot = Quaternion.LookRotation(dir.normalized);
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
 
         if (!IsGrounded())
         {
@@ -55,6 +85,12 @@ public class PlayerController : MonoBehaviour
 
         _rigidbody.velocity = dir;
         _anim.SetBool("IsMove", _moveDirection.magnitude > 0.5f);
+    }
+
+    private void Rotate()
+    {
+        float angle = Mathf.Atan2(_moveDirection.x, _moveDirection.z) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -98,5 +134,22 @@ public class PlayerController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void CameraLook()
+    {
+        _camCurXRot += _mouseDelta.y * lookSensitivity;
+        _camCurXRot = Mathf.Clamp(_camCurXRot, minXLook, maxXLook);
+
+        _camCurYRot += _mouseDelta.x * lookSensitivity;
+
+        _targetRotaion = Vector3.SmoothDamp(_targetRotaion, new Vector3(-_camCurXRot, _camCurYRot),ref _curVelocity, rotTime);
+        cameraContainer.transform.eulerAngles = _targetRotaion;
+        cameraContainer.transform.position = (transform.position - cameraContainer.forward * camDistance) + Vector3.up;
+    }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        _mouseDelta = context.ReadValue<Vector2>();
     }
 }

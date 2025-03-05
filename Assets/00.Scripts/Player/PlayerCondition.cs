@@ -11,9 +11,15 @@ public class PlayerCondition : MonoBehaviour
         get => uiManager.health;
     }
 
+    public Condition stamina
+    {
+        get => uiManager.stamina;
+    }
+
     private void Update()
     {
         health.Add(health.passiveValue * Time.deltaTime);
+        stamina.Add(stamina.passiveValue * Time.deltaTime);
 
         if (health.curValue <= 0f)
         {
@@ -29,5 +35,15 @@ public class PlayerCondition : MonoBehaviour
     public void Die()
     {
         // Á×À½
+    }
+
+    public bool UseStamina(float amount)
+    {
+        if (stamina.curValue - amount < 0f)
+        {
+            return false;
+        }
+        stamina.Subtract(amount);
+        return true;
     }
 }

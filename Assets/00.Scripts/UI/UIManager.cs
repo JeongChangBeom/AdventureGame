@@ -17,6 +17,7 @@ public class UIManager : MonoBehaviour
 
     [Header("Condition")]
     public Condition health;
+    public Condition stamina;
 
     private void Start()
     {

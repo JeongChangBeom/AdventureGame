@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed;
     public float jumpPower;
+    public bool isDash;
+    public float dashValue;
     private Vector3 _moveDirection;
     public LayerMask groundLayerMask;
 
@@ -29,6 +31,9 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private Animator _anim;
 
+    private float _originMoveSpeed;
+    private float _originCamDistance;
+
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -38,6 +43,8 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        _originMoveSpeed = moveSpeed;
+        _originCamDistance = camDistance;
     }
 
     private void Update()
@@ -45,6 +52,16 @@ public class PlayerController : MonoBehaviour
         if (IsGrounded())
         {
             _anim.SetBool("IsJump", false);
+        }
+
+        if (isDash)
+        {
+            CharacterManager.Instance.Player.condition.UseStamina(dashValue * Time.deltaTime);
+
+            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 40f)
+            {
+                EndDash();
+            }
         }
     }
 
@@ -68,15 +85,15 @@ public class PlayerController : MonoBehaviour
 
         Vector3 dir = lookForward * _moveDirection.y + lookRight * _moveDirection.x;
 
-        if(dir.magnitude > 0.1f)
+        if (dir.magnitude > 0.1f)
         {
             Quaternion viewRot = Quaternion.LookRotation(dir.normalized);
             transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
         }
-     
+
         if (!IsGrounded())
         {
-            dir *= moveSpeed / 2;
+            dir *= moveSpeed / 2.0f;
         }
         else
         {
@@ -108,7 +125,31 @@ public class PlayerController : MonoBehaviour
             _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
         }
 
-        _anim.SetBool("IsJump",true);
+        _anim.SetBool("IsJump", true);
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed && IsGrounded())
+        {
+            if(CharacterManager.Instance.Player.condition.stamina.curValue > 40f)
+            {
+                isDash = true;
+                moveSpeed *= 2.0f;
+                camDistance *= 1.2f;
+            }
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            EndDash();
+        }
+    }
+
+    private void EndDash()
+    {
+        isDash = false;
+        moveSpeed = _originMoveSpeed;
+        camDistance = _originCamDistance;
     }
 
     bool IsGrounded()
@@ -139,7 +180,7 @@ public class PlayerController : MonoBehaviour
 
         _camCurYRot += _mouseDelta.x * lookSensitivity;
 
-        _targetRotaion = Vector3.SmoothDamp(_targetRotaion, new Vector3(-_camCurXRot, _camCurYRot),ref _curVelocity, rotTime);
+        _targetRotaion = Vector3.SmoothDamp(_targetRotaion, new Vector3(-_camCurXRot, _camCurYRot), ref _curVelocity, rotTime);
         cameraContainer.transform.eulerAngles = _targetRotaion;
         cameraContainer.transform.position = (transform.position - cameraContainer.forward * camDistance) + Vector3.up;
     }

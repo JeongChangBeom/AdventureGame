@@ -68,10 +68,12 @@ public class PlayerController : MonoBehaviour
 
         Vector3 dir = lookForward * _moveDirection.y + lookRight * _moveDirection.x;
 
-        Quaternion viewRot = Quaternion.LookRotation(dir.normalized);
-
-        transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
-
+        if(dir.magnitude > 0.1f)
+        {
+            Quaternion viewRot = Quaternion.LookRotation(dir.normalized);
+            transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
+        }
+     
         if (!IsGrounded())
         {
             dir *= moveSpeed / 2;
@@ -85,12 +87,6 @@ public class PlayerController : MonoBehaviour
 
         _rigidbody.velocity = dir;
         _anim.SetBool("IsMove", _moveDirection.magnitude > 0.5f);
-    }
-
-    private void Rotate()
-    {
-        float angle = Mathf.Atan2(_moveDirection.x, _moveDirection.z) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
     public void OnMove(InputAction.CallbackContext context)

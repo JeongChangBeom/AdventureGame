@@ -15,6 +15,14 @@ public class UIManager : MonoBehaviour
 
     private UIState curState;
 
+    [Header("Condition")]
+    public Condition health;
+
+    private void Start()
+    {
+        CharacterManager.Instance.Player.condition.uiManager = this;
+    }
+
     private void Awake()
     {
         UIArr = GetComponentsInChildren<BaseUI>(true);

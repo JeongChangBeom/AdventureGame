@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db4e921448bd21f478fb0f23938f5dd9, type: 3}
   m_Name: SpeedUp
   m_EditorClassIdentifier: 
-  icon: {fileID: 0}
   itemName: "\uC774\uB3D9\uC18D\uB3C4 \uC99D\uAC00"
   description: "\uC77C\uC815 \uC2DC\uAC04\uB3D9\uC548 \uC774\uB3D9\uC18D\uB3C4\uAC00
     \uC99D\uAC00\uD569\uB2C8\uB2E4."
   value: 5
   itemType: 1
-  effType: 0
+  icon: {fileID: 0}
+  effType: 1
   effDuration: 10

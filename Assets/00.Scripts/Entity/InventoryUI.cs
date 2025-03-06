@@ -61,7 +61,6 @@ public class InventoryUI : MonoBehaviour
 
     public void Toggle()
     {
-        print("toggle method");
         if (isOpen())
         {
             inventoryWindow.SetActive(false);
@@ -74,7 +73,6 @@ public class InventoryUI : MonoBehaviour
 
     public bool isOpen()
     {
-        print("isopen method");
         return inventoryWindow.activeInHierarchy;
     }
 

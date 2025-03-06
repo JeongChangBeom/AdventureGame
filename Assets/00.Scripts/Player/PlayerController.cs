@@ -23,7 +23,6 @@ public class PlayerController : MonoBehaviour
     private float _camCurYRot;
     public float lookSensitivity;
     private Vector2 _mouseDelta;
-    public bool canLook = true;
     private float _camDistance;
     public float rotTime;
     public float rotSpeed;
@@ -63,18 +62,12 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (canLook)
-        {
-            Move();
-        }
+        Move();
     }
 
     private void LateUpdate()
     {
-        if (canLook)
-        {
-            CameraLook();
-        }
+        CameraLook();
     }
 
     private void CalcCamDistance()
@@ -117,6 +110,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        print(inventory);
         if (context.phase == InputActionPhase.Started && IsGrounded())
         {
             _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
@@ -177,7 +171,6 @@ public class PlayerController : MonoBehaviour
     {
         bool toggle = Cursor.lockState == CursorLockMode.Locked;
         Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
-        canLook = !toggle;
     }
 
     private bool IsGrounded()

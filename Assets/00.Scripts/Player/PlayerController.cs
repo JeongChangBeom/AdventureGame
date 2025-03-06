@@ -9,7 +9,8 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed;
     public float jumpPower;
     public bool isDash;
-    public float dashValue;
+    public float dashStamina;
+    public float dashSpeed;
     private Vector3 _moveDirection;
     public LayerMask groundLayerMask;
 
@@ -22,7 +23,7 @@ public class PlayerController : MonoBehaviour
     public float lookSensitivity;
     private Vector2 _mouseDelta;
     public bool canLook = true;
-    public float camDistance;
+    private float _camDistance;
     public float rotTime;
     public float rotSpeed;
     private Vector3 _targetRotaion;
@@ -31,8 +32,6 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private Animator _anim;
 
-    private float _originMoveSpeed;
-    private float _originCamDistance;
 
     private void Awake()
     {
@@ -43,8 +42,6 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        _originMoveSpeed = moveSpeed;
-        _originCamDistance = camDistance;
     }
 
     private void Update()
@@ -56,13 +53,15 @@ public class PlayerController : MonoBehaviour
 
         if (isDash)
         {
-            CharacterManager.Instance.Player.condition.UseStamina(dashValue * Time.deltaTime);
+            CharacterManager.Instance.Player.condition.UseStamina(dashStamina * Time.deltaTime);
 
             if (CharacterManager.Instance.Player.condition.stamina.curValue <= 1f)
             {
                 EndDash();
             }
         }
+
+        CalcCamDistance();
     }
 
     private void FixedUpdate()
@@ -76,6 +75,11 @@ public class PlayerController : MonoBehaviour
         {
             CameraLook();
         }
+    }
+
+    private void CalcCamDistance()
+    {
+        _camDistance = 4.0f + (moveSpeed * 0.2f);
     }
 
     private void Move()
@@ -123,16 +127,15 @@ public class PlayerController : MonoBehaviour
 
     public void OnDash(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed && IsGrounded())
+        if (context.phase == InputActionPhase.Performed && IsGrounded() && !isDash)
         {
             if (CharacterManager.Instance.Player.condition.stamina.curValue > 100f)
             {
                 isDash = true;
-                moveSpeed += 5.0f;
-                camDistance += 1f;
+                moveSpeed += dashSpeed;
             }
         }
-        else if (context.phase == InputActionPhase.Canceled)
+        else if (context.phase == InputActionPhase.Canceled && isDash)
         {
             EndDash();
         }
@@ -141,8 +144,7 @@ public class PlayerController : MonoBehaviour
     private void EndDash()
     {
         isDash = false;
-        moveSpeed = _originMoveSpeed;
-        camDistance = _originCamDistance;
+        moveSpeed -= dashSpeed;
     }
 
     private void CameraLook()
@@ -154,7 +156,7 @@ public class PlayerController : MonoBehaviour
 
         _targetRotaion = Vector3.SmoothDamp(_targetRotaion, new Vector3(-_camCurXRot, _camCurYRot), ref _curVelocity, rotTime);
         cameraContainer.transform.eulerAngles = _targetRotaion;
-        cameraContainer.transform.position = (transform.position - cameraContainer.forward * camDistance) + Vector3.up;
+        cameraContainer.transform.position = (transform.position - cameraContainer.forward * _camDistance) + Vector3.up;
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -187,11 +189,11 @@ public class PlayerController : MonoBehaviour
 
     public void ConsumableItemEff()
     {
-        if(CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
+        if (CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
         {
             StartCoroutine(SpeedUp());
         }
-        else if(CharacterManager.Instance.Player.itemData.effType == EffType.JumpUp)
+        else if (CharacterManager.Instance.Player.itemData.effType == EffType.JumpUp)
         {
             StartCoroutine(JumpUp());
         }
@@ -199,21 +201,19 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator SpeedUp()
     {
-        moveSpeed += 2.0f;
-        camDistance += 1f;
+        moveSpeed += CharacterManager.Instance.Player.itemData.value;
 
         yield return new WaitForSeconds(5.0f);
 
-        moveSpeed -= 2.0f;
-        camDistance -= 1f;
+        moveSpeed -= CharacterManager.Instance.Player.itemData.value;
     }
 
     private IEnumerator JumpUp()
     {
-        jumpPower += 100f;
+        jumpPower += CharacterManager.Instance.Player.itemData.value;
 
         yield return new WaitForSeconds(5.0f);
 
-        jumpPower -= 100f;
+        jumpPower -= CharacterManager.Instance.Player.itemData.value;
     }
 }

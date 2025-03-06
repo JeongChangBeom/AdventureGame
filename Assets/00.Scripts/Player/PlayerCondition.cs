@@ -22,7 +22,7 @@ public class PlayerCondition : MonoBehaviour
         stamina.Add(stamina.passiveValue * Time.deltaTime);
 
         if (health.curValue <= 0f)
-        {
+        { 
             Die();
         }
     }
@@ -34,7 +34,7 @@ public class PlayerCondition : MonoBehaviour
 
     public void Die()
     {
-        Debug.Log("Á×À½");
+        GameManager.Instance.GameOver();
     }
 
     public bool UseStamina(float amount)

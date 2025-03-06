@@ -19,19 +19,19 @@ public class UIManager : MonoBehaviour
     public Condition health;
     public Condition stamina;
 
-    private void Start()
-    {
-        CharacterManager.Instance.Player.condition.uiManager = this;
-    }
-
     private void Awake()
     {
         UIArr = GetComponentsInChildren<BaseUI>(true);
 
-        foreach(var ui in UIArr)
+        foreach (var ui in UIArr)
         {
             ui.Init(this);
         }
+    }
+
+    private void Start()
+    {
+        CharacterManager.Instance.Player.condition.uiManager = this;
     }
 
     public void SetPlayGame()

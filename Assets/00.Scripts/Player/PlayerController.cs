@@ -39,11 +39,6 @@ public class PlayerController : MonoBehaviour
         _anim = GetComponent<Animator>();
     }
 
-    private void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
     private void Update()
     {
         if (IsGrounded())
@@ -201,19 +196,23 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator SpeedUp()
     {
-        moveSpeed += CharacterManager.Instance.Player.itemData.value;
+        float speedValue = CharacterManager.Instance.Player.itemData.value;
+
+        moveSpeed += speedValue;
 
         yield return new WaitForSeconds(5.0f);
 
-        moveSpeed -= CharacterManager.Instance.Player.itemData.value;
+        moveSpeed -= speedValue;
     }
 
     private IEnumerator JumpUp()
     {
-        jumpPower += CharacterManager.Instance.Player.itemData.value;
+        float jumpValue = CharacterManager.Instance.Player.itemData.value;
+
+        jumpPower += jumpValue;
 
         yield return new WaitForSeconds(5.0f);
 
-        jumpPower -= CharacterManager.Instance.Player.itemData.value;
+        jumpPower -= jumpValue;
     }
 }

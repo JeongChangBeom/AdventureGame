@@ -11,8 +11,9 @@ public enum ItemType
 
 public enum EffType
 {
-   SpeedUp,
-   JumpUp,
+    Null,
+    SpeedUp,
+    JumpUp,
 }
 
 
@@ -20,11 +21,15 @@ public enum EffType
 public class ItemData : ScriptableObject
 {
     [Header("Info")]
-    public Sprite icon;
     public string itemName;
     public string description;
     public float value;
     public ItemType itemType;
+
+    [Header("Equipable")]
+    public Sprite icon;
+
+    [Header("Consumable")]
     public EffType effType;
     public float effDuration;
 }

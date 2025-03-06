@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 _targetRotaion;
     private Vector3 _curVelocity;
 
+    public Action inventory;
     private Rigidbody _rigidbody;
     private Animator _anim;
 
@@ -61,7 +63,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Move();
+        if (canLook)
+        {
+            Move();
+        }
     }
 
     private void LateUpdate()
@@ -157,6 +162,22 @@ public class PlayerController : MonoBehaviour
     public void OnLook(InputAction.CallbackContext context)
     {
         _mouseDelta = context.ReadValue<Vector2>();
+    }
+
+    public void OnInventory(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            inventory?.Invoke();
+            ToggleCursor();
+        }
+    }
+
+    private void ToggleCursor()
+    {
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;
+        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
+        canLook = !toggle;
     }
 
     private bool IsGrounded()

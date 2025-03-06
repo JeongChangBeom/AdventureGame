@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
         {
             CharacterManager.Instance.Player.condition.UseStamina(dashValue * Time.deltaTime);
 
-            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 40f)
+            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 1f)
             {
                 EndDash();
             }
@@ -91,14 +91,7 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
         }
 
-        if (!IsGrounded())
-        {
-            dir *= moveSpeed / 2.0f;
-        }
-        else
-        {
-            dir *= moveSpeed;
-        }
+        dir *= moveSpeed;
 
         dir.y = _rigidbody.velocity.y;
 
@@ -132,11 +125,11 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Performed && IsGrounded())
         {
-            if(CharacterManager.Instance.Player.condition.stamina.curValue > 40f)
+            if (CharacterManager.Instance.Player.condition.stamina.curValue > 100f)
             {
                 isDash = true;
-                moveSpeed *= 2.0f;
-                camDistance *= 1.2f;
+                moveSpeed += 5.0f;
+                camDistance += 1f;
             }
         }
         else if (context.phase == InputActionPhase.Canceled)
@@ -150,27 +143,6 @@ public class PlayerController : MonoBehaviour
         isDash = false;
         moveSpeed = _originMoveSpeed;
         camDistance = _originCamDistance;
-    }
-
-    bool IsGrounded()
-    {
-        Ray[] rays = new Ray[4]
-        {
-            new Ray(transform.position+(transform.forward*0.2f)+(transform.up*0.01f),Vector3.down),
-            new Ray(transform.position+(-transform.forward*0.2f)+(transform.up*0.01f),Vector3.down),
-            new Ray(transform.position+(transform.right*0.2f)+(transform.up*0.01f),Vector3.down),
-            new Ray(transform.position+(-transform.right*0.2f)+(transform.up*0.01f),Vector3.down)
-        };
-
-        foreach (var ray in rays)
-        {
-            if (Physics.Raycast(ray, 0.1f, groundLayerMask))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void CameraLook()
@@ -188,5 +160,60 @@ public class PlayerController : MonoBehaviour
     public void OnLook(InputAction.CallbackContext context)
     {
         _mouseDelta = context.ReadValue<Vector2>();
+    }
+
+    private bool IsGrounded()
+    {
+        Ray[] rays = new Ray[4]
+        {
+            new Ray(transform.position+(transform.forward*0.2f)+(transform.up*0.01f),Vector3.down),
+            new Ray(transform.position+(-transform.forward*0.2f)+(transform.up*0.01f),Vector3.down),
+            new Ray(transform.position+(transform.right*0.2f)+(transform.up*0.01f),Vector3.down),
+            new Ray(transform.position+(-transform.right*0.2f)+(transform.up*0.01f),Vector3.down)
+        };
+
+        foreach (var ray in rays)
+        {
+            Debug.DrawRay(ray.origin, ray.direction * 0.1f, Color.red);
+
+            if (Physics.Raycast(ray, 0.1f, groundLayerMask))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void ConsumableItemEff()
+    {
+        if(CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
+        {
+            StartCoroutine(SpeedUp());
+        }
+        else if(CharacterManager.Instance.Player.itemData.effType == EffType.JumpUp)
+        {
+            StartCoroutine(JumpUp());
+        }
+    }
+
+    private IEnumerator SpeedUp()
+    {
+        moveSpeed += 2.0f;
+        camDistance += 1f;
+
+        yield return new WaitForSeconds(5.0f);
+
+        moveSpeed -= 2.0f;
+        camDistance -= 1f;
+    }
+
+    private IEnumerator JumpUp()
+    {
+        jumpPower += 100f;
+
+        yield return new WaitForSeconds(5.0f);
+
+        jumpPower -= 100f;
     }
 }

@@ -34,7 +34,7 @@ public class PlayerCondition : MonoBehaviour
 
     public void Die()
     {
-        // Á×À½
+        Debug.Log("Á×À½");
     }
 
     public bool UseStamina(float amount)
@@ -45,5 +45,13 @@ public class PlayerCondition : MonoBehaviour
         }
         stamina.Subtract(amount);
         return true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("DeadZone"))
+        {
+            Die();
+        }
     }
 }

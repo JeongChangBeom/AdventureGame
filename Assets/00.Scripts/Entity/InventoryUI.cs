@@ -179,7 +179,7 @@ public class InventoryUI : MonoBehaviour
     void UnEquip(int index)
     {
         slots[index].equiped = false;
-        controller.UnEquipItem(slots[selectedItemIndex].item);
+        controller.UnEquipItem(slots[index].item);
         UpdateUI();
 
         if (selectedItemIndex == index)

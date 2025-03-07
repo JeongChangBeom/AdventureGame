@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
@@ -17,27 +18,55 @@ public class Interaction : MonoBehaviour
 
     private void Update()
     {
-        Ray ray = new Ray(transform.position + transform.up, transform.forward);
-        Debug.DrawRay(ray.origin, ray.direction * maxCheckDistance, Color.red);
-
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, maxCheckDistance, layerMask))
+        Ray[] rays = new Ray[12]
         {
-            if (hit.collider.gameObject != curInteractGameObject)
+            new Ray(transform.position, transform.forward),
+            new Ray(transform.position + transform.up*0.5f, transform.forward),
+            new Ray(transform.position + transform.up*1f, transform.forward),
+            new Ray(transform.position + transform.up*1.5f, transform.forward),
+
+            new Ray(transform.position + transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*0.5f + transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*1f + transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*1.5f + transform.right*0.3f, transform.forward),
+
+            new Ray(transform.position - transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*0.5f - transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*1f - transform.right*0.3f, transform.forward),
+            new Ray(transform.position + transform.up*1.5f - transform.right*0.3f, transform.forward)
+        };
+
+        int noHitCheck = 0;
+
+        foreach (var ray in rays)
+        {
+            Debug.DrawRay(ray.origin, ray.direction * maxCheckDistance, Color.red);
+
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, maxCheckDistance, layerMask))
             {
-                curInteractGameObject = hit.collider.gameObject;
-                curInteractable = hit.collider.GetComponent<IInteractable>();
-                SetPromptText();
+                if (hit.collider.gameObject != curInteractGameObject)
+                {
+                    curInteractGameObject = hit.collider.gameObject;
+                    curInteractable = hit.collider.GetComponent<IInteractable>();
+                    SetPromptText();
+                }
+            }
+            else
+            {
+                noHitCheck++;
             }
         }
-        else
+
+        if(noHitCheck == rays.Length)
         {
             curInteractGameObject = null;
             curInteractable = null;
             promptText.gameObject.SetActive(false);
         }
     }
+
 
     private void SetPromptText()
     {

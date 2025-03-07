@@ -8,8 +8,6 @@ public class MovingPlatform : MonoBehaviour
     [SerializeField] Vector3 moveTo = Vector3.zero;
     [SerializeField] float moveTime = 1f;
 
-    Vector3 startPosition;
-
     private void Start()
     {
         Move();
@@ -22,11 +20,17 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        collision.gameObject.transform.SetParent(this.transform);
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.transform.SetParent(this.transform);
+        }
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        collision.gameObject.transform.SetParent(null);
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            collision.gameObject.transform.SetParent(null);
+        }
     }
 }

@@ -2,7 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerCondition : MonoBehaviour
+public interface IDamagable
+{
+    void Damage(float damage);
+}
+
+public class PlayerCondition : MonoBehaviour, IDamagable
 {
     public UIManager uiManager;
 
@@ -18,7 +23,6 @@ public class PlayerCondition : MonoBehaviour
 
     private void Update()
     {
-        health.Add(health.passiveValue * Time.deltaTime);
         stamina.Add(stamina.passiveValue * Time.deltaTime);
 
         if (health.curValue <= 0f)
@@ -30,6 +34,11 @@ public class PlayerCondition : MonoBehaviour
     public void Heal(float amount)
     {
         health.Add(amount);
+    }
+
+    public void Damage(float damage)
+    {
+        health.Subtract(damage);
     }
 
     public void Die()

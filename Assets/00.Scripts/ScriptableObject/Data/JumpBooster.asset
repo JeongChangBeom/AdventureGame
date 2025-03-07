@@ -20,4 +20,4 @@ MonoBehaviour:
   equipables: []
   effType: 2
   effDuration: 10
-  value: 50
+  value: 250

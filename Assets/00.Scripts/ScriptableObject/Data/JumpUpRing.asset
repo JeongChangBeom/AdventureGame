@@ -23,7 +23,7 @@ MonoBehaviour:
   equipables:
   - valueType: 2
     valueName: "\uC810\uD504\uB825"
-    value: 50
+    value: 100
   effType: 0
   effDuration: 0
   value: 0

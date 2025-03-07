@@ -3745,6 +3745,7 @@ GameObject:
   - component: {fileID: 565924451}
   - component: {fileID: 565924452}
   - component: {fileID: 565924458}
+  - component: {fileID: 565924459}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -3958,7 +3959,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpPower: 150
+  jumpPower: 350
   maxJumpCount: 1
   curJumpCount: 0
   isJump: 0
@@ -4041,6 +4042,18 @@ MonoBehaviour:
     m_Bits: 128
   curInteractGameObject: {fileID: 0}
   promptText: {fileID: 183825850}
+--- !u!75 &565924459
+ConstantForce:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565924446}
+  m_Enabled: 1
+  m_Force: {x: 0, y: -500, z: 0}
+  m_RelativeForce: {x: 0, y: 0, z: 0}
+  m_Torque: {x: 0, y: 0, z: 0}
+  m_RelativeTorque: {x: 0, y: 0, z: 0}
 --- !u!4 &566772208 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8107190456209775893, guid: 57ef16ee7712da6409e8836bf6001e3c, type: 3}
@@ -13606,6 +13619,10 @@ PrefabInstance:
     - target: {fileID: 5488034088277430503, guid: f5083f2beaa9e204a965078fbd9acdfc, type: 3}
       propertyPath: m_Name
       value: JumpObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 5531950639986496068, guid: f5083f2beaa9e204a965078fbd9acdfc, type: 3}
+      propertyPath: jumpPower
+      value: 600
       objectReference: {fileID: 0}
     - target: {fileID: 7788390702142610789, guid: f5083f2beaa9e204a965078fbd9acdfc, type: 3}
       propertyPath: m_LocalPosition.x

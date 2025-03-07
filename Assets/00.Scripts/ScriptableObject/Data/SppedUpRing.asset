@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db4e921448bd21f478fb0f23938f5dd9, type: 3}
+  m_Name: SppedUpRing
+  m_EditorClassIdentifier: 
+  itemName: "\uC2E0\uC18D\uC758 \uBC18\uC9C0"
+  description: "\uC774 \uBC18\uC9C0\uB294 \uBC14\uB78C\uC758 \uC815\uC218\uB97C \uB2F4\uACE0
+    \uC788\uB294 \uC720\uBB3C\uC774\uB2E4. \uCC29\uC6A9\uC790\uB294 \uB9C8\uCE58
+    \uBC14\uB78C\uCC98\uB7FC \uC2E0\uC18D\uD558\uAC8C \uC6C0\uC9C1\uC77C \uC218 \uC788\uB294
+    \uD798\uC744 \uC5BB\uAC8C \uB41C\uB2E4."
+  itemType: 0
+  icon: {fileID: 21300000, guid: cc0d76738e5c69d4f8953a9fe232b4fb, type: 3}
+  equipables:
+  - valueType: 1
+    valueName: "\uC774\uB3D9\uC18D\uB3C4"
+    value: 2
+  effType: 0
+  effDuration: 0
+  value: 0

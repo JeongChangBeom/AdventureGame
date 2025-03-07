@@ -46,6 +46,7 @@ public class InventoryUI : MonoBehaviour
         }
 
         ClearSelctedItemWindow();
+        UpdateUI();
     }
 
     private void ClearSelctedItemWindow()
@@ -64,10 +65,12 @@ public class InventoryUI : MonoBehaviour
         if (isOpen())
         {
             inventoryWindow.SetActive(false);
+            Time.timeScale = 1f;
         }
         else
         {
             inventoryWindow.SetActive(true);
+            Time.timeScale = 0f;
         }
     }
 
@@ -127,14 +130,32 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
+        for(int i = 0; i < slots.Length; i++)
+        {
+            if (slots[i] == slots[index])
+            {
+                slots[i].selected = true;
+            }
+            else
+            {
+                slots[i].selected = false;
+            }
+        }
+
         selectedItem = slots[index].item;
         selectedItemIndex = index;
 
-        selectedItemName.text = selectedItem.itemName;
+        selectedItemName.text = $"[{selectedItem.itemName}]";
         selectedItemDescription.text = selectedItem.description;
 
         selectedStatName.text = string.Empty;
         selectedStatValue.text = string.Empty;
+
+        for (int i = 0; i < selectedItem.equipables.Length; i++)
+        {
+            selectedStatName.text += selectedItem.equipables[i].valueName + "\n";
+            selectedStatValue.text += selectedItem.equipables[i].value > 0 ? $"+{selectedItem.equipables[i].value.ToString()}" + "\n" : "\n";
+        }
 
         equipButton.SetActive(selectedItem.itemType == ItemType.Equipable && !slots[index].equiped);
         unequipButton.SetActive(selectedItem.itemType == ItemType.Equipable && slots[index].equiped);
@@ -149,7 +170,7 @@ public class InventoryUI : MonoBehaviour
 
         slots[selectedItemIndex].equiped = true;
         curEquipIndex = selectedItemIndex;
-        CharacterManager.Instance.Player.equipItem = slots[curEquipIndex].item;
+        controller.EquipItem(slots[selectedItemIndex].item);
         UpdateUI();
 
         SelectItem(selectedItemIndex);
@@ -158,7 +179,7 @@ public class InventoryUI : MonoBehaviour
     void UnEquip(int index)
     {
         slots[index].equiped = false;
-        CharacterManager.Instance.Player.equipItem = null;
+        controller.UnEquipItem(slots[selectedItemIndex].item);
         UpdateUI();
 
         if (selectedItemIndex == index)

@@ -3,12 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Progress;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
     public float jumpPower;
+    public float maxJumpCount;
+    public float curJumpCount;
+    public bool isJump;
     public bool isDash;
     public float dashStamina;
     public float dashSpeed;
@@ -42,9 +46,14 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (IsGrounded())
+        if (!isJump)
         {
-            _anim.SetBool("IsJump", false);
+            if (IsGrounded())
+            {
+                _anim.SetBool("IsJump", false);
+                curJumpCount = 0;
+                isJump = false;
+            }
         }
 
         if (isDash)
@@ -110,13 +119,20 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        print(inventory);
-        if (context.phase == InputActionPhase.Started && IsGrounded())
+        if (context.phase == InputActionPhase.Started && curJumpCount < maxJumpCount)
         {
             _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
-        }
+            isJump = true;
+            curJumpCount++;
+            _anim.SetBool("IsJump", true);
 
-        _anim.SetBool("IsJump", true);
+            Invoke("EndJump", 0.1f);
+        }
+    }
+
+    private void EndJump()
+    {
+        isJump = false;
     }
 
     public void OnDash(InputAction.CallbackContext context)
@@ -200,15 +216,15 @@ public class PlayerController : MonoBehaviour
     {
         if (CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
         {
-            StartCoroutine(SpeedUp());
+            StartCoroutine(SpeedBooster());
         }
         else if (CharacterManager.Instance.Player.itemData.effType == EffType.JumpUp)
         {
-            StartCoroutine(JumpUp());
+            StartCoroutine(JumpBooster());
         }
     }
 
-    private IEnumerator SpeedUp()
+    private IEnumerator SpeedBooster()
     {
         float speedValue = CharacterManager.Instance.Player.itemData.value;
 
@@ -219,7 +235,7 @@ public class PlayerController : MonoBehaviour
         moveSpeed -= speedValue;
     }
 
-    private IEnumerator JumpUp()
+    private IEnumerator JumpBooster()
     {
         float jumpValue = CharacterManager.Instance.Player.itemData.value;
 
@@ -228,5 +244,46 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(5.0f);
 
         jumpPower -= jumpValue;
+    }
+
+    public void EquipItem(ItemData item)
+    {
+        ItemData curItem = item;
+
+        for (int i = 0; i < curItem.equipables.Length; i++)
+        {
+            switch (curItem.equipables[i].valueType)
+            {
+                case EquipableItemType.JumpCountUp:
+                    maxJumpCount += curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.JumpUp:
+                    jumpPower += curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.SpeedUp:
+                    moveSpeed += curItem.equipables[i].value;
+                    break;
+            }
+        }
+    }
+    public void UnEquipItem(ItemData item)
+    {
+        ItemData curItem = item;
+
+        for (int i = 0; i < curItem.equipables.Length; i++)
+        {
+            switch (curItem.equipables[i].valueType)
+            {
+                case EquipableItemType.JumpCountUp:
+                    maxJumpCount -= curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.JumpUp:
+                    jumpPower -= curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.SpeedUp:
+                    moveSpeed -= curItem.equipables[i].value;
+                    break;
+            }
+        }
     }
 }

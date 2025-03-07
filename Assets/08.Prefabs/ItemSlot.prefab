@@ -239,9 +239,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   item: {fileID: 0}
-  button: {fileID: 0}
-  icon: {fileID: 0}
-  equipStateText: {fileID: 0}
+  button: {fileID: 6338264546545459089}
+  icon: {fileID: 6539164502912928590}
+  equipStateText: {fileID: 4897996583912827941}
   inventory: {fileID: 0}
   index: 0
   equiped: 0

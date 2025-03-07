@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db4e921448bd21f478fb0f23938f5dd9, type: 3}
+  m_Name: DoubleJumpRing
+  m_EditorClassIdentifier: 
+  itemName: "\uACE0\uB300\uC758 \uBE44\uC0C1 \uBC18\uC9C0"
+  description: "\uC774 \uBC18\uC9C0\uB294 \uC78A\uD600\uC9C4 \uACE0\uB300\uC758 \uD798\uC744
+    \uD488\uACE0 \uC788\uB2E4. \uCC29\uC6A9\uC2DC \uC601\uD63C\uC5D0 \uB0A0\uAC1C\uB97C
+    \uBD80\uC5EC\uD558\uC5EC \uD55C \uBC88\uC758 \uC810\uD504 \uD6C4, \uACF5\uC911\uC5D0\uC11C
+    \uB2E4\uC2DC \uD55C \uBC88 \uD798\uC744 \uBAA8\uC544 \uB354 \uB192\uC740 \uACF3\uC73C\uB85C
+    \uC19F\uAD6C\uCE60 \uC218 \uC788\uB294 \uD798\uC744 \uC5BB\uAC8C \uB41C\uB2E4."
+  itemType: 0
+  icon: {fileID: 21300000, guid: 9c1c6be89d32e4e43b27a936fa6d0383, type: 3}
+  equipables:
+  - valueType: 0
+    valueName: "\uC810\uD504\uD69F\uC218"
+    value: 1
+  effType: 0
+  effDuration: 0
+  value: 0

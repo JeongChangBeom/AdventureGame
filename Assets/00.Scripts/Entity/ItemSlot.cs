@@ -15,6 +15,7 @@ public class ItemSlot : MonoBehaviour
     public InventoryUI inventory;
 
     public int index;
+    public bool selected;
     public bool equiped;
 
     private void Awake()
@@ -22,9 +23,21 @@ public class ItemSlot : MonoBehaviour
         outline = GetComponent<Outline>();
     }
 
+    private void Update()
+    {
+        outline.enabled = selected;
+    }
+
     private void OnEnable()
     {
-        outline.enabled = equiped;
+        if (equiped)
+        {
+            equipStateText.SetActive(true);
+        }
+        else
+        {
+            equipStateText.SetActive(false);
+        }
     }
 
     public void Set()
@@ -35,12 +48,10 @@ public class ItemSlot : MonoBehaviour
         if (equiped)
         {
             equipStateText.SetActive(true);
-            outline.enabled = true;
         }
         else
         {
             equipStateText.SetActive(false);
-            outline.enabled = false;
         }
     }
 
@@ -48,6 +59,7 @@ public class ItemSlot : MonoBehaviour
     {
         item = null;
         icon.gameObject.SetActive(false);
+        equipStateText.SetActive(false);
     }
 
     public void OnClickButton()

@@ -11,10 +11,16 @@ public interface IInteractable
 public class ItemObject : MonoBehaviour, IInteractable
 {
     public ItemData data;
+    public float rotationSpeed = 80f;
+
+    void Update()
+    {
+        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+    }
 
     public string GetInteractPrompt()
     {
-        string str = $"[{data.itemName}]\n{data.description}";
+        string str = $"[{data.itemName}]";
 
         return str;
     }

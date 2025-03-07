@@ -9,7 +9,6 @@ public class Player : MonoBehaviour
     public PlayerCondition condition;
 
     public ItemData itemData;
-    public ItemData equipItem;
     public Action addItem;
 
     private void Awake()

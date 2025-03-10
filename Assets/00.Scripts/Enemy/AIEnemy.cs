@@ -57,11 +57,13 @@ public class AIEnemy : MonoBehaviour
 
         if(agent.speed > 2.0f)
         {
-            animator.SetBool("IsRun", aiState != AIState.Idle);
+            animator.SetBool("IsRun", true);
+            animator.SetBool("IsMove", false);
         }
         else
         {
-            animator.SetBool("IsMove", aiState != AIState.Idle);
+            animator.SetBool("IsRun", false);
+            animator.SetBool("IsMove", true);
         }
 
         switch (aiState)
@@ -96,8 +98,6 @@ public class AIEnemy : MonoBehaviour
                 agent.isStopped = false;
                 break;
         }
-
-        animator.speed = agent.speed / walkSpeed;
     }
 
     private void PassiveUpdate()

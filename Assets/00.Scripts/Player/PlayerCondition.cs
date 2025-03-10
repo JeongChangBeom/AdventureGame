@@ -21,13 +21,21 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         get => uiManager.stamina;
     }
 
+    private bool isDie;
+
+    private void Start()
+    {
+        isDie = false;
+    }
+
     private void Update()
     {
         stamina.Add(stamina.passiveValue * Time.deltaTime);
 
-        if (health.curValue <= 0f)
+        if (health.curValue <= 0f && !isDie)
         { 
             Die();
+            isDie = true;
         }
     }
 
@@ -38,13 +46,14 @@ public class PlayerCondition : MonoBehaviour, IDamagable
 
     public void Damage(float damage)
     {
+        CharacterManager.Instance.Player.anim.SetTrigger("IsDamage");
         health.Subtract(damage);
     }
 
     public void Die()
     {
         CharacterManager.Instance.Player.anim.SetTrigger("IsDie");
-        Invoke("DieGameOver",1f);
+        Invoke("DieGameOver",2f);
     }
 
     private void DieGameOver()

@@ -7451,7 +7451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 1
-  runSpeed: 4
+  runSpeed: 8
   detectDistance: 5
   minWanderDistance: 5
   maxWanderDistance: 10

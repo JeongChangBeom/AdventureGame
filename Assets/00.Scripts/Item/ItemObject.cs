@@ -22,6 +22,15 @@ public class ItemObject : MonoBehaviour, IInteractable
     {
         string str = $"[{data.itemName}]";
 
+        if (data.itemType == ItemType.Equipable)
+        {
+            str += "\n'E'키를 눌러 획득";
+        }
+        else if (data.itemType == ItemType.Consumable)
+        {
+            str += "\n'E'키를 눌러 사용";
+        }
+
         return str;
     }
 

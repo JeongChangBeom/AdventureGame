@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody _rigidbody;
     private Animator _anim;
 
+    public bool onLauncher = false;
+
 
     private void Awake()
     {
@@ -56,6 +58,14 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        if (onLauncher)
+        {
+            if (IsGrounded())
+            {
+                onLauncher = false;
+            }
+        }
+
         if (isDash)
         {
             CharacterManager.Instance.Player.condition.UseStamina(dashStamina * Time.deltaTime);
@@ -71,7 +81,10 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Move();
+        if (!onLauncher)
+        {
+            Move();
+        }
     }
 
     private void LateUpdate()

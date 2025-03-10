@@ -43,6 +43,12 @@ public class PlayerCondition : MonoBehaviour, IDamagable
 
     public void Die()
     {
+        CharacterManager.Instance.Player.anim.SetTrigger("IsDie");
+        Invoke("DieGameOver",1f);
+    }
+
+    private void DieGameOver()
+    {
         GameManager.Instance.GameOver();
     }
 

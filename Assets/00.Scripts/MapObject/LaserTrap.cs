@@ -21,6 +21,7 @@ public class LaserTrap : MonoBehaviour
         }
     }
 
+    //  Player가 레이에 닿았는지 검사
     void RayCheck()
     {
         Ray[] rays = new Ray[5]{
@@ -42,6 +43,7 @@ public class LaserTrap : MonoBehaviour
         }
     }
 
+    // target위치에 장애물 생성
     void SpawnObstacle()
     {
         Instantiate(obstacle, target.position, Quaternion.identity);

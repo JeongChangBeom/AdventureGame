@@ -38,6 +38,7 @@ public class InventoryUI : MonoBehaviour
         inventoryWindow.SetActive(false);
         slots = new ItemSlot[slotPanel.childCount];
 
+        //  인벤토리에 존재하는 slot들을 초기화
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = slotPanel.GetChild(i).GetComponent<ItemSlot>();
@@ -49,6 +50,7 @@ public class InventoryUI : MonoBehaviour
         UpdateUI();
     }
 
+    //  인벤토리창 초기화
     private void ClearSelctedItemWindow()
     {
         selectedItemName.text = string.Empty;
@@ -79,6 +81,7 @@ public class InventoryUI : MonoBehaviour
         return inventoryWindow.activeInHierarchy;
     }
 
+    //  아이템을 획득하여 인벤토리 슬롯에 넣는 함수
     private void AddItem()
     {
         ItemData data = CharacterManager.Instance.Player.itemData;
@@ -93,7 +96,7 @@ public class InventoryUI : MonoBehaviour
             return;
         }
 
-        // 장비창이 꽉찼을 때
+        // 추후 장비창이 꽉찼을 때 로직 추가해야 됨. 현재는 장비창이 꽉찰수가 없음
     }
 
     private void UpdateUI()
@@ -111,6 +114,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    //  슬롯들중 빈슬롯을 찾아주는 함수
     private ItemSlot GetEmptySlot()
     {
         for (int i = 0; i < slots.Length; i++)
@@ -123,6 +127,7 @@ public class InventoryUI : MonoBehaviour
         return null;
     }
 
+    //  현재 선택한 슬롯의 정보를 출력
     public void SelectItem(int index)
     {
         if (slots[index].item == null)
@@ -161,6 +166,7 @@ public class InventoryUI : MonoBehaviour
         unequipButton.SetActive(selectedItem.itemType == ItemType.Equipable && slots[index].equiped);
     }
 
+    //  장착 버튼을 누르면 아이템을 장착 + 아이템 장착 시 처리
     public void OnEquipButton()
     {
         if (slots[curEquipIndex].equiped)
@@ -176,6 +182,7 @@ public class InventoryUI : MonoBehaviour
         SelectItem(selectedItemIndex);
     }
 
+    //  아이템 해제 시 처리
     void UnEquip(int index)
     {
         slots[index].equiped = false;
@@ -188,6 +195,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    //  해제 버튼을 누르면 아이템 해제
     public void OnUnEquipButton()
     {
         UnEquip(selectedItemIndex);

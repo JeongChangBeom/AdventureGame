@@ -31,8 +31,10 @@ public class PlayerCondition : MonoBehaviour, IDamagable
 
     private void Update()
     {
+        //  자동으로 스태미너 회복
         stamina.Add(stamina.passiveValue * Time.deltaTime);
 
+        //  체력이 0이되면 죽음
         if (health.curValue <= 0f && !isDie)
         { 
             Die();
@@ -40,17 +42,20 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         }
     }
 
+    //  체력회복
     public void Heal(float amount)
     {
         health.Add(amount);
     }
 
+    //  데미지
     public void Damage(float damage)
     {
         CharacterManager.Instance.Player.anim.SetTrigger("IsDamage");
         health.Subtract(damage);
     }
 
+    //  죽었을 때 애니메이션 호출, 일정시간이후 게임 오버
     public void Die()
     {
         CharacterManager.Instance.Player.GetComponent<PlayerInput>().enabled = false;
@@ -64,6 +69,7 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         GameManager.Instance.GameOver();
     }
 
+    //  스태미너 사용
     public bool UseStamina(float amount)
     {
         if (stamina.curValue - amount < 0f)
@@ -74,6 +80,7 @@ public class PlayerCondition : MonoBehaviour, IDamagable
         return true;
     }
 
+    //  떨어졌을 때 사망
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("DeadZone"))

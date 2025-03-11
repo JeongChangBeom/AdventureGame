@@ -23,6 +23,7 @@ public class ItemSlot : MonoBehaviour
         outline = GetComponent<Outline>();
     }
 
+    //  선택된 슬롯이면 outline 활성화
     private void Update()
     {
         outline.enabled = selected;
@@ -40,6 +41,7 @@ public class ItemSlot : MonoBehaviour
         }
     }
 
+    //  해당 슬롯 갱신
     public void Set()
     {
         icon.gameObject.SetActive(true);
@@ -55,6 +57,7 @@ public class ItemSlot : MonoBehaviour
         }
     }
 
+    //  해당 슬롯 초기화
     public void Clear()
     {
         item = null;

@@ -55,6 +55,7 @@ public class AIEnemy : MonoBehaviour
     {
         playerDistance = Vector3.Distance(transform.position, CharacterManager.Instance.Player.transform.position);
 
+        //  속도가 빠르면 뛰는 모션, 느리면 걷는 모션
         if(agent.speed > 2.0f)
         {
             animator.SetBool("IsRun", true);
@@ -66,6 +67,7 @@ public class AIEnemy : MonoBehaviour
             animator.SetBool("IsMove", true);
         }
 
+        // enum형 AIState의 값에 따라 상태 전환
         switch (aiState)
         {
             case AIState.Idle:
@@ -79,6 +81,7 @@ public class AIEnemy : MonoBehaviour
         }
     }
 
+    //  Enemy의 상태를 전환
     public void SetState(AIState state)
     {
         aiState = state;
@@ -100,6 +103,8 @@ public class AIEnemy : MonoBehaviour
         }
     }
 
+
+    //  조건에 따라 Enemy의 상태를 전환
     private void PassiveUpdate()
     {
         if(aiState == AIState.Wandering && agent.remainingDistance < 0.1f)
@@ -114,6 +119,7 @@ public class AIEnemy : MonoBehaviour
         }
     }
 
+    // 방황 할 때 새로운 목적지를 찾음
     private void WanderToNewLocation()
     {
         if (aiState != AIState.Idle)
@@ -125,6 +131,7 @@ public class AIEnemy : MonoBehaviour
         agent.SetDestination(GetWanderLocation());
     }
 
+    //  랜덤한 위치를 샘플링하는 함수
     private Vector3 GetWanderLocation()
     {
         NavMeshHit hit;
@@ -146,6 +153,7 @@ public class AIEnemy : MonoBehaviour
         return hit.position;
     }
 
+    //  플레이어를 감지하고 공격하는 함수, 플레이어가 감지 범위 밖으로 나가면 다시 방황하도록 State변경
     private void AttackingUpdate()
     {
         if (playerDistance < attackDistance && isPlayerFreldOfView())
@@ -184,11 +192,13 @@ public class AIEnemy : MonoBehaviour
         }
     }
 
+    //  데미지를 계산해주는 함수. 공격 모션 animaion clip의 타이밍에 맞춰 event로 호출된다.
     private void CalcDamage()
     {
         CharacterManager.Instance.Player.controller.GetComponent<IDamagable>().Damage(damage);
     }
 
+    //  Enemy의 시야각
     private bool isPlayerFreldOfView()
     {
         Vector3 directionToPlayer = CharacterManager.Instance.Player.transform.position - transform.position;

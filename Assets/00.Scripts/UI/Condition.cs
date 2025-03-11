@@ -15,6 +15,7 @@ public class Condition : MonoBehaviour
         curValue = startValue;
     }
 
+    //  UI에 띄우기 위한 현재 Condition 퍼센트 계산
     public float GetPercentage()
     {
         return curValue / maxValue;

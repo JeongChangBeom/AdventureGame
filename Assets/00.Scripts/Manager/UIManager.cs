@@ -44,7 +44,7 @@ public class UIManager : MonoBehaviour
         ChangeState(UIState.GameOver);
     }
 
-
+    //  현재 띄울 UI로 상태를 변환해주는 함수
     public void ChangeState(UIState state)
     {
         curState = state;

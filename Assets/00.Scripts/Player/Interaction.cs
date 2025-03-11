@@ -18,6 +18,7 @@ public class Interaction : MonoBehaviour
 
     private void Update()
     {
+        //  12개의 레이를 사용해서 넓은 범위의 상호작용 오브젝트 체크
         Ray[] rays = new Ray[12]
         {
             new Ray(transform.position, transform.forward),
@@ -68,6 +69,7 @@ public class Interaction : MonoBehaviour
     }
 
 
+    //  Prompt창의 Text를 갱신
     private void SetPromptText()
     {
         promptText.gameObject.SetActive(true);

@@ -31,6 +31,7 @@ public class LauncherPlatform : MonoBehaviour,IInteractable
         LaunchReady();
     }
 
+    //  발사 준비를 위해 못움직이도록 입력을 끊고, Player를 정해진 위치로 이동 시킴
     private void LaunchReady()
     {
         playerInput.actions["Move"].Disable();
@@ -41,6 +42,7 @@ public class LauncherPlatform : MonoBehaviour,IInteractable
         Invoke("LaunchStart", 3f);
     }
 
+    //  정해진 각도와 힘으로 Player를 발사
     private void LaunchStart()
     {
         CharacterManager.Instance.Player.controller.onLauncher = true;

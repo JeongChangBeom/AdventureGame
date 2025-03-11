@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        //  처음 시작했을 때만 HomeUI를 활성화시키고, GameOver가 되어 게임을 재시작할 땐 바로 게임 시작
         if (!isFirstLoading)
         {
             StartGame();

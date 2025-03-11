@@ -41,11 +41,11 @@ public class PlayerController : MonoBehaviour
     public float climbStamina;
     public float climbCount;
 
+    [Header("")]
+    public bool onLauncher;
     public Action inventory;
     private Rigidbody _rigidbody;
     private Animator _anim;
-
-    public bool onLauncher;
 
 
     private void Awake()
@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        //  땅에 닿았을 때 점프 횟수, 등반 횟수 초기화
         if (!isJump)
         {
             if (IsGrounded())
@@ -74,6 +75,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //  고속 이동 장치에 의해 날라가다가 땅에 닿았을 때
         if (onLauncher)
         {
             if (IsGrounded())
@@ -82,6 +84,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //  등반시 스태미너 사용, 스태미너가 없으면 등반 종료
         if (isClimb)
         {
             CharacterManager.Instance.Player.condition.UseStamina(climbStamina * Time.deltaTime);
@@ -92,6 +95,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        //  대쉬시 스태미너 사용, 스태미너가 없으면 대쉬 종료
         if (isDash)
         {
             CharacterManager.Instance.Player.condition.UseStamina(dashStamina * Time.deltaTime);
@@ -107,6 +111,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //  고속이동 장치에 의해 날라가고 있지 않거나, 등반중이지 않으면 Move()호출 
         if (!onLauncher && !isClimb)
         {
             Move();
@@ -118,11 +123,13 @@ public class PlayerController : MonoBehaviour
         CameraLook();
     }
 
+    //  속도에 따른 카메라 거리 계산
     private void CalcCamDistance()
     {
         _camDistance = 4.0f + (moveSpeed * 0.2f);
     }
 
+    //  카메라가 바라보는 방향에 따른 이동
     private void Move()
     {
         Vector3 lookForward = new Vector3(cameraContainer.forward.x, 0f, cameraContainer.forward.z).normalized;
@@ -144,6 +151,7 @@ public class PlayerController : MonoBehaviour
         _anim.SetBool("IsMove", _moveDirection.magnitude > 0.5f);
     }
 
+    //  Input System을 통한 키입력으로 이동할 방향을 받아옴
     public void OnMove(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Performed)
@@ -156,6 +164,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //  Input System을 통한 키입력으로 점프를 진행
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started && curJumpCount < maxJumpCount)
@@ -180,6 +189,7 @@ public class PlayerController : MonoBehaviour
         isJump = false;
     }
 
+    //  Input System을 통한 키입력으로 대쉬를 진행
     public void OnDash(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Performed && IsGrounded() && !isDash)
@@ -202,6 +212,7 @@ public class PlayerController : MonoBehaviour
         moveSpeed -= dashSpeed;
     }
 
+    // 3인칭 카메라 시점
     private void CameraLook()
     {
         _camCurXRot += _mouseDelta.y * lookSensitivity;
@@ -214,11 +225,13 @@ public class PlayerController : MonoBehaviour
         cameraContainer.transform.position = (transform.position - cameraContainer.forward * _camDistance) + Vector3.up;
     }
 
+    //  Input System을 통해 마우스의 delta값을 받아옴
     public void OnLook(InputAction.CallbackContext context)
     {
         _mouseDelta = context.ReadValue<Vector2>();
     }
 
+    //  Input System을 통해 특정 키를 누르면 인벤토리 활성화
     public void OnInventory(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started)
@@ -228,6 +241,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //  Input System을 통해 특정 키를 누르면 벽에 매달림
     public void OnClimb(InputAction.CallbackContext context)
     {
         if(context.phase == InputActionPhase.Started)
@@ -243,9 +257,10 @@ public class PlayerController : MonoBehaviour
                 {
                     if (!IsGrounded())
                     {
-                        //  이부분에 원래 벽에 매달리는 애니메이션이 들어가야되는데 에셋에 매달리는 모션이 없음
+                        //  이부분에 원래 벽에 매달리는 애니메이션이 들어가야되는데 에셋에 매달리는 모션이 없음. 추후 수정 필요
                         _anim.SetBool("IsMove", false);
                         _anim.SetBool("IsJump", false);
+                        //
 
                         isClimb = true;
                         climbCount++;
@@ -266,12 +281,14 @@ public class PlayerController : MonoBehaviour
         isClimb = false;
     }
 
+    //  마우스 커서의 상태 전환
     private void ToggleCursor()
     {
         bool toggle = Cursor.lockState == CursorLockMode.Locked;
         Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
     }
 
+    //  Player가 지면에 닿았는 지 판단하는 함수
     private bool IsGrounded()
     {
         Ray[] rays = new Ray[4]
@@ -295,6 +312,7 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
+    //  소비아이템을 사용하는 함수
     public void ConsumableItemEff()
     {
         if (CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
@@ -307,6 +325,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //  소비아이템이 이동속도 부스터일 때
     private IEnumerator SpeedBooster()
     {
         float speedValue = CharacterManager.Instance.Player.itemData.value;
@@ -318,6 +337,7 @@ public class PlayerController : MonoBehaviour
         moveSpeed -= speedValue;
     }
 
+    //  소비아이템이 점프 부스터일 때
     private IEnumerator JumpBooster()
     {
         float jumpValue = CharacterManager.Instance.Player.itemData.value;
@@ -329,6 +349,7 @@ public class PlayerController : MonoBehaviour
         jumpPower -= jumpValue;
     }
 
+    //  아이템 장착 시 아이템 효과 적용
     public void EquipItem(ItemData item)
     {
         ItemData curItem = item;
@@ -349,6 +370,8 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    //  아이템 해제 시 아이템 효과 미적용
     public void UnEquipItem(ItemData item)
     {
         ItemData curItem = item;

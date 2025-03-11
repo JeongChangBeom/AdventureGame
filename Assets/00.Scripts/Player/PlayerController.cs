@@ -1,18 +1,52 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Progress;
 
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
     public float jumpPower;
-    private Vector2 _moveDirection;
+    public float maxJumpCount;
+    public float curJumpCount;
+    public bool isJump;
+    public float jumpStamina;
+    public bool isDash;
+    public float dashStamina;
+    public float dashSpeed;
+    private Vector3 _moveDirection;
     public LayerMask groundLayerMask;
 
+    [Header("Look")]
+    public Transform cameraContainer;
+    public float minXLook;
+    public float maxXLook;
+    private float _camCurXRot;
+    private float _camCurYRot;
+    public float lookSensitivity;
+    private Vector2 _mouseDelta;
+    private float _camDistance;
+    public float rotTime;
+    public float rotSpeed;
+    private Vector3 _targetRotaion;
+    private Vector3 _curVelocity;
+
+    [Header("Climb")]
+    public bool isClimb;
+    public float climbStamina;
+    public float climbCount;
+
+    public Action inventory;
     private Rigidbody _rigidbody;
     private Animator _anim;
+
+    public bool onLauncher;
+
 
     private void Awake()
     {
@@ -22,34 +56,87 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        isClimb = false;
+        onLauncher = false;
     }
 
     private void Update()
     {
-        if (IsGrounded())
+        if (!isJump)
         {
-            _anim.SetBool("IsJump", false);
+            if (IsGrounded())
+            {
+                _anim.SetBool("IsJump", false);
+                curJumpCount = 0;
+                isJump = false;
+
+                climbCount = 0;
+            }
         }
+
+        if (onLauncher)
+        {
+            if (IsGrounded())
+            {
+                onLauncher = false;
+            }
+        }
+
+        if (isClimb)
+        {
+            CharacterManager.Instance.Player.condition.UseStamina(climbStamina * Time.deltaTime);
+
+            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 1f)
+            {
+                EndClimb();
+            }
+        }
+
+        if (isDash)
+        {
+            CharacterManager.Instance.Player.condition.UseStamina(dashStamina * Time.deltaTime);
+
+            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 1f)
+            {
+                EndDash();
+            }
+        }
+
+        CalcCamDistance();
     }
 
     private void FixedUpdate()
     {
-        Move();
+        if (!onLauncher && !isClimb)
+        {
+            Move();
+        }
+    }
+
+    private void LateUpdate()
+    {
+        CameraLook();
+    }
+
+    private void CalcCamDistance()
+    {
+        _camDistance = 4.0f + (moveSpeed * 0.2f);
     }
 
     private void Move()
     {
-        Vector3 dir = transform.forward * _moveDirection.y + transform.right * _moveDirection.x;
+        Vector3 lookForward = new Vector3(cameraContainer.forward.x, 0f, cameraContainer.forward.z).normalized;
+        Vector3 lookRight = new Vector3(cameraContainer.right.x, 0f, cameraContainer.right.z).normalized;
 
-        if (!IsGrounded())
+        Vector3 dir = lookForward * _moveDirection.y + lookRight * _moveDirection.x;
+
+        if (dir.magnitude > 0.1f)
         {
-            dir *= moveSpeed / 2;
+            Quaternion viewRot = Quaternion.LookRotation(dir.normalized);
+            transform.rotation = Quaternion.Lerp(transform.rotation, viewRot, Time.deltaTime * rotSpeed);
         }
-        else
-        {
-            dir *= moveSpeed;
-        }
+
+        dir *= moveSpeed;
 
         dir.y = _rigidbody.velocity.y;
 
@@ -71,15 +158,121 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && IsGrounded())
+        if (context.phase == InputActionPhase.Started && curJumpCount < maxJumpCount)
         {
-            _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
-        }
+            if(CharacterManager.Instance.Player.condition.stamina.curValue > jumpStamina)
+            {
+                EndClimb();
+                CharacterManager.Instance.Player.condition.UseStamina(jumpStamina);
 
-        _anim.SetBool("IsJump",true);
+                _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+                isJump = true;
+                curJumpCount++;
+                _anim.SetBool("IsJump", true);
+
+                Invoke("EndJump", 0.1f);
+            }
+        }
     }
 
-    bool IsGrounded()
+    private void EndJump()
+    {
+        isJump = false;
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed && IsGrounded() && !isDash)
+        {
+            if (CharacterManager.Instance.Player.condition.stamina.curValue > 100f)
+            {
+                isDash = true;
+                moveSpeed += dashSpeed;
+            }
+        }
+        else if (context.phase == InputActionPhase.Canceled && isDash)
+        {
+            EndDash();
+        }
+    }
+
+    private void EndDash()
+    {
+        isDash = false;
+        moveSpeed -= dashSpeed;
+    }
+
+    private void CameraLook()
+    {
+        _camCurXRot += _mouseDelta.y * lookSensitivity;
+        _camCurXRot = Mathf.Clamp(_camCurXRot, minXLook, maxXLook);
+
+        _camCurYRot += _mouseDelta.x * lookSensitivity;
+
+        _targetRotaion = Vector3.SmoothDamp(_targetRotaion, new Vector3(-_camCurXRot, _camCurYRot), ref _curVelocity, rotTime);
+        cameraContainer.transform.eulerAngles = _targetRotaion;
+        cameraContainer.transform.position = (transform.position - cameraContainer.forward * _camDistance) + Vector3.up;
+    }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        _mouseDelta = context.ReadValue<Vector2>();
+    }
+
+    public void OnInventory(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started)
+        {
+            inventory?.Invoke();
+            ToggleCursor();
+        }
+    }
+
+    public void OnClimb(InputAction.CallbackContext context)
+    {
+        if(context.phase == InputActionPhase.Started)
+        {
+            Ray ray = new Ray(transform.position + transform.up * 1.5f, transform.forward);
+            Debug.DrawRay(ray.origin, ray.direction * 1f, Color.red);
+
+            RaycastHit hit;
+
+            if(Physics.Raycast(ray, out hit, 1f))
+            {
+                if (hit.normal.y < 0.1f && climbCount < 1)
+                {
+                    if (!IsGrounded())
+                    {
+                        //  이부분에 원래 벽에 매달리는 애니메이션이 들어가야되는데 에셋에 매달리는 모션이 없음
+                        _anim.SetBool("IsMove", false);
+                        _anim.SetBool("IsJump", false);
+
+                        isClimb = true;
+                        climbCount++;
+
+                        _rigidbody.drag = Mathf.Infinity;
+
+                        curJumpCount = 0;
+                        isJump = false;
+                    }
+                }
+            }
+        }
+    }
+
+    private void EndClimb()
+    {
+        _rigidbody.drag = 0;
+        isClimb = false;
+    }
+
+    private void ToggleCursor()
+    {
+        bool toggle = Cursor.lockState == CursorLockMode.Locked;
+        Cursor.lockState = toggle ? CursorLockMode.Confined : CursorLockMode.Locked;
+    }
+
+    private bool IsGrounded()
     {
         Ray[] rays = new Ray[4]
         {
@@ -91,6 +284,8 @@ public class PlayerController : MonoBehaviour
 
         foreach (var ray in rays)
         {
+            Debug.DrawRay(ray.origin, ray.direction * 0.1f, Color.red);
+
             if (Physics.Raycast(ray, 0.1f, groundLayerMask))
             {
                 return true;
@@ -98,5 +293,80 @@ public class PlayerController : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void ConsumableItemEff()
+    {
+        if (CharacterManager.Instance.Player.itemData.effType == EffType.SpeedUp)
+        {
+            StartCoroutine(SpeedBooster());
+        }
+        else if (CharacterManager.Instance.Player.itemData.effType == EffType.JumpUp)
+        {
+            StartCoroutine(JumpBooster());
+        }
+    }
+
+    private IEnumerator SpeedBooster()
+    {
+        float speedValue = CharacterManager.Instance.Player.itemData.value;
+
+        moveSpeed += speedValue;
+
+        yield return new WaitForSeconds(5.0f);
+
+        moveSpeed -= speedValue;
+    }
+
+    private IEnumerator JumpBooster()
+    {
+        float jumpValue = CharacterManager.Instance.Player.itemData.value;
+
+        jumpPower += jumpValue;
+
+        yield return new WaitForSeconds(5.0f);
+
+        jumpPower -= jumpValue;
+    }
+
+    public void EquipItem(ItemData item)
+    {
+        ItemData curItem = item;
+
+        for (int i = 0; i < curItem.equipables.Length; i++)
+        {
+            switch (curItem.equipables[i].valueType)
+            {
+                case EquipableItemType.JumpCountUp:
+                    maxJumpCount += curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.JumpUp:
+                    jumpPower += curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.SpeedUp:
+                    moveSpeed += curItem.equipables[i].value;
+                    break;
+            }
+        }
+    }
+    public void UnEquipItem(ItemData item)
+    {
+        ItemData curItem = item;
+
+        for (int i = 0; i < curItem.equipables.Length; i++)
+        {
+            switch (curItem.equipables[i].valueType)
+            {
+                case EquipableItemType.JumpCountUp:
+                    maxJumpCount -= curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.JumpUp:
+                    jumpPower -= curItem.equipables[i].value;
+                    break;
+                case EquipableItemType.SpeedUp:
+                    moveSpeed -= curItem.equipables[i].value;
+                    break;
+            }
+        }
     }
 }

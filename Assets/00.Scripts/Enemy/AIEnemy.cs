@@ -153,8 +153,7 @@ public class AIEnemy : MonoBehaviour
             agent.isStopped = true;
             if (Time.time - lastAttackTime > attackRate)
             {
-                lastAttackTime = Time.time;
-                CharacterManager.Instance.Player.controller.GetComponent<IDamagable>().Damage(damage);
+                lastAttackTime = Time.time;   
                 animator.speed = 2;
                 animator.SetTrigger("IsAttack");
             }
@@ -183,6 +182,11 @@ public class AIEnemy : MonoBehaviour
                 SetState(AIState.Wandering);
             }
         }
+    }
+
+    private void CalcDamage()
+    {
+        CharacterManager.Instance.Player.controller.GetComponent<IDamagable>().Damage(damage);
     }
 
     private bool isPlayerFreldOfView()

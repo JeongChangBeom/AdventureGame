@@ -2363,6 +2363,7 @@ MonoBehaviour:
   maxJumpCount: 1
   curJumpCount: 0
   isJump: 0
+  jumpStamina: 100
   isDash: 0
   dashStamina: 300
   dashSpeed: 3
@@ -2375,6 +2376,9 @@ MonoBehaviour:
   lookSensitivity: 0.2
   rotTime: 0.1
   rotSpeed: 20
+  isClimb: 0
+  climbStamina: 300
+  climbCount: 0
   onLauncher: 0
 --- !u!114 &565924452
 MonoBehaviour:

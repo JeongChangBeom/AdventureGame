@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public interface IDamagable
 {
@@ -52,12 +53,14 @@ public class PlayerCondition : MonoBehaviour, IDamagable
 
     public void Die()
     {
+        CharacterManager.Instance.Player.GetComponent<PlayerInput>().enabled = false;
         CharacterManager.Instance.Player.anim.SetTrigger("IsDie");
         Invoke("DieGameOver",2f);
     }
 
     private void DieGameOver()
     {
+        CharacterManager.Instance.Player.GetComponent<PlayerInput>().enabled = true;
         GameManager.Instance.GameOver();
     }
 

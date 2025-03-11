@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEditor.Progress;
@@ -13,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public float maxJumpCount;
     public float curJumpCount;
     public bool isJump;
+    public float jumpStamina;
     public bool isDash;
     public float dashStamina;
     public float dashSpeed;
@@ -33,17 +36,28 @@ public class PlayerController : MonoBehaviour
     private Vector3 _targetRotaion;
     private Vector3 _curVelocity;
 
+    [Header("Climb")]
+    public bool isClimb;
+    public float climbStamina;
+    public float climbCount;
+
     public Action inventory;
     private Rigidbody _rigidbody;
     private Animator _anim;
 
-    public bool onLauncher = false;
+    public bool onLauncher;
 
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
         _anim = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        isClimb = false;
+        onLauncher = false;
     }
 
     private void Update()
@@ -55,6 +69,8 @@ public class PlayerController : MonoBehaviour
                 _anim.SetBool("IsJump", false);
                 curJumpCount = 0;
                 isJump = false;
+
+                climbCount = 0;
             }
         }
 
@@ -63,6 +79,16 @@ public class PlayerController : MonoBehaviour
             if (IsGrounded())
             {
                 onLauncher = false;
+            }
+        }
+
+        if (isClimb)
+        {
+            CharacterManager.Instance.Player.condition.UseStamina(climbStamina * Time.deltaTime);
+
+            if (CharacterManager.Instance.Player.condition.stamina.curValue <= 1f)
+            {
+                EndClimb();
             }
         }
 
@@ -81,7 +107,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!onLauncher)
+        if (!onLauncher && !isClimb)
         {
             Move();
         }
@@ -134,12 +160,18 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started && curJumpCount < maxJumpCount)
         {
-            _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
-            isJump = true;
-            curJumpCount++;
-            _anim.SetBool("IsJump", true);
+            if(CharacterManager.Instance.Player.condition.stamina.curValue > jumpStamina)
+            {
+                EndClimb();
+                CharacterManager.Instance.Player.condition.UseStamina(jumpStamina);
 
-            Invoke("EndJump", 0.1f);
+                _rigidbody.AddForce(Vector2.up * jumpPower, ForceMode.Impulse);
+                isJump = true;
+                curJumpCount++;
+                _anim.SetBool("IsJump", true);
+
+                Invoke("EndJump", 0.1f);
+            }
         }
     }
 
@@ -194,6 +226,44 @@ public class PlayerController : MonoBehaviour
             inventory?.Invoke();
             ToggleCursor();
         }
+    }
+
+    public void OnClimb(InputAction.CallbackContext context)
+    {
+        if(context.phase == InputActionPhase.Started)
+        {
+            Ray ray = new Ray(transform.position + transform.up * 1.5f, transform.forward);
+            Debug.DrawRay(ray.origin, ray.direction * 1f, Color.red);
+
+            RaycastHit hit;
+
+            if(Physics.Raycast(ray, out hit, 1f))
+            {
+                if (hit.normal.y < 0.1f && climbCount < 1)
+                {
+                    if (!IsGrounded())
+                    {
+                        //  이부분에 원래 벽에 매달리는 애니메이션이 들어가야되는데 에셋에 매달리는 모션이 없음
+                        _anim.SetBool("IsMove", false);
+                        _anim.SetBool("IsJump", false);
+
+                        isClimb = true;
+                        climbCount++;
+
+                        _rigidbody.drag = Mathf.Infinity;
+
+                        curJumpCount = 0;
+                        isJump = false;
+                    }
+                }
+            }
+        }
+    }
+
+    private void EndClimb()
+    {
+        _rigidbody.drag = 0;
+        isClimb = false;
     }
 
     private void ToggleCursor()
